@@ -9,14 +9,15 @@ import time
 client = zulip.Client(email="Mafia-bot@students.hackerschool.com",
                       api_key="ynj6gS3cxyMyGX25lYkLopBUqhOILjEK")
 
-
-# An interesting question is how to write the function
-# It is pretty clear that I am going to have to make a second copy of this
-# function to handle the case where I want to harvest all senders instead
-# of all streams
-# The question is, how many ways can I do that? Obviously, copying and pasting
-# is one but that is less than ideal. So how many ways can I create one function
-# that handles either task in an elegant way?
+'''
+An interesting question is how to write the function
+It is pretty clear that I am going to have to make a second copy of this
+function to handle the case where I want to harvest all senders instead
+of all streams
+The question is, how many ways can I do that? Obviously, copying and pasting
+is one but that is less than ideal. So how many ways can I create one function
+that handles either task in an elegant way?
+'''
 
 def save_json(filename, data):
     with open(filename, 'wb') as outfile:
@@ -46,6 +47,7 @@ def harvest_stream(stream_name):
 
     else:
         return None
+
 
 def harvest_sender(sender):
     anchor = 0
@@ -103,15 +105,14 @@ def harvest_general_v1(data, sender_flag=True):
 
 
 
-
-
-
 if __name__ == '__main__':
     #do smart stuff here
-    #Should harvest via streams and the harvest by list of users
-    #and compare the results to see how they differ in number of messages
-    #Also, am I going to get private messages, at least acknowledgement
-    #of their existence instead of getting actual content?
+    '''
+    Should harvest via streams and the harvest by list of users
+    and compare the results to see how they differ in number of messages
+    Also, am I going to get private messages, at least acknowledgement
+    of their existence instead of getting actual content?
+    '''
 
     response = client.register()
     assert response['result']=='success', 'Error with client registration!'
@@ -131,4 +132,8 @@ if __name__ == '__main__':
 
         time.sleep(5)
 
-    save_json('messages_by_stream.json', )
+    save_json('messages_by_stream.json', messages)
+
+
+
+    realm_users = response['realm_users']
