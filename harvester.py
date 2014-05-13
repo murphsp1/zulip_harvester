@@ -17,6 +17,18 @@ client = zulip.Client(email="Mafia-bot@students.hackerschool.com",
 # The question is, how many ways can I do that? Obviously, copying and pasting
 # is one but that is less than ideal. So how many ways can I create one function
 # that handles either task in an elegant way?
+
+def save_json(filename, data):
+    with open(filename, 'wb') as outfile:
+        json.dump(data, outfile)
+
+
+def load_json(filename):
+    with open(filename) as infile:
+        data = json.load(infile)
+    return data
+
+
 def harvest_stream(stream_name):
     anchor = 0
     num_before = 0
@@ -39,10 +51,14 @@ def harvest_sender(sender):
     anchor = 0
     num_before = 0
     num_after = 100000000000
-    response = client.do_api_query({'anchor':anchor,
-                                    'num_before': num_before,
-                                    'num_after': num_after,
-                                    'narrow': [['sender', sender]]},
+
+    query_parameters = {}
+    query_parameters['anchor']= anchor
+    query_parameters['num_before'] = num_before
+    query_parameters['num_after'] = num_after
+    query_parameters['narrow'] = [['sender', sender]]
+
+    response = client.do_api_query( query_parameters,
                                     'https://zulip.com/api/v1/messages',
                                      method='GET'
                                     )
@@ -52,15 +68,42 @@ def harvest_sender(sender):
         return None
 
 
-def save_json(filename, data):
-    with open(filename, 'wb') as outfile:
-        json.dump(data, outfile)
+def harvest_general_v1(data, sender_flag=True):
+    '''
+    This more general implementation of the harvest function is still quite
+    limited as it only handles two different cases that are hard coded in the function
+    '''
+
+    anchor = 0
+    num_before = 0
+    num_after = 100000000000
+
+    query_parameters = {}
+    query_parameters['anchor']= anchor
+    query_parameters['num_before'] = num_before
+    query_parameters['num_after'] = num_after
+
+    if sender_flag:
+        narrow = [['sender', data]]
+    else:
+        narrow = [['stream', data]]
+
+    query_parameters['narrow'] = narrow
+
+    response = client.do_api_query( query_parameters,
+                                    'https://zulip.com/api/v1/messages',
+                                     method='GET'
+                                    )
+
+    if response['result'] == 'success':
+        return response['messages']
+    else:
+        return None
 
 
-def load_json(filename):
-    with open(filename) as infile:
-        data = json.load(infile)
-    return data
+
+
+
 
 
 if __name__ == '__main__':
