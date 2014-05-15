@@ -3,7 +3,7 @@ import zulip
 import requests
 import json
 import time
-
+import datetime
 
 # Keyword arguments 'email' and 'api_key' are not required if you are using ~/.zuliprc
 client = zulip.Client(email="Mafia-bot@students.hackerschool.com",
@@ -103,6 +103,22 @@ def harvest_general_v1(data, sender_flag=True):
         return None
 
 
+def convert_from_unixtime(unixtime, whole=True):
+    """
+    Convert Unix time to human-readable string.
+    This function supplied by David Branner
+    timestamp in zulip API is Unix epoch https://en.wikipedia.org/wiki/Unix_time
+    """
+    if not whole:
+        # Date only, no time.
+        date = datetime.datetime.fromtimestamp(
+            unixtime).strftime('%Y%m%d')
+    else:
+        # Both date and time.
+        date = datetime.datetime.fromtimestamp(
+            unixtime).strftime('%Y%m%d-%H%M')
+    return date
+
 
 
 if __name__ == '__main__':
@@ -137,3 +153,5 @@ if __name__ == '__main__':
 
 
     realm_users = response['realm_users']
+
+    m = harvest_sender('murphsp1@gmail.com')
