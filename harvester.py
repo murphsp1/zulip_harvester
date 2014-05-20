@@ -3,7 +3,9 @@ import zulip
 import requests
 import json
 import time
-import datetime
+import .utils
+
+
 
 # Keyword arguments 'email' and 'api_key' are not required if you are using ~/.zuliprc
 client = zulip.Client(email="Mafia-bot@students.hackerschool.com",
@@ -18,16 +20,6 @@ The question is, how many ways can I do that? Obviously, copying and pasting
 is one but that is less than ideal. So how many ways can I create one function
 that handles either task in an elegant way?
 '''
-
-def save_json(filename, data):
-    with open(filename, 'wb') as outfile:
-        json.dump(data, outfile)
-
-
-def load_json(filename):
-    with open(filename) as infile:
-        data = json.load(infile)
-    return data
 
 
 def harvest_stream(stream_name):
@@ -115,10 +107,21 @@ def convert_from_unixtime(unixtime, whole=True):
             unixtime).strftime('%Y%m%d')
     else:
         # Both date and time.
-        date = datetime.datetime.fromtimestamp(
-            unixtime).strftime('%Y%m%d-%H%M')
+        date = datetime.datetime.fromtimestamp(unixtime)
     return date
 
+
+def harvest_all_streams(stream_names):
+    messages = {}
+    for s in stream_names:
+        print(s)
+        m = harvest_stream(s)
+        if messages is not None:
+            messages[s] = m
+
+        time.sleep(5)
+
+    return messages
 
 
 if __name__ == '__main__':
@@ -128,6 +131,8 @@ if __name__ == '__main__':
     and compare the results to see how they differ in number of messages
     Also, am I going to get private messages, at least acknowledgement
     of their existence instead of getting actual content?
+
+    Note, not possible to harvest extensively by list of users
     '''
 
     response = client.register()
@@ -138,20 +143,6 @@ if __name__ == '__main__':
     stream_names = [s['name'] for s in streams]
     print(len(stream_names))
 
-    messages = {}
-    for s in stream_names:
-        print(s)
-        m = harvest_stream(s)
+    messages = harvest_all_streams(stream_names)
 
-        if messages is not None:
-            messages[s] = m
-
-        time.sleep(5)
-
-    save_json('messages_by_stream.json', messages)
-
-
-
-    realm_users = response['realm_users']
-
-    m = harvest_sender('murphsp1@gmail.com')
+    utils.save_json('messages_by_stream.json', messages)
